@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'faraday_throttler/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "faraday_throttler_rx"
+  spec.name          = "faraday-throttler-rx"
   spec.version       = FaradayThrottler::VERSION
   spec.authors       = ["Boris Koumondji"]
   spec.email         = ["brexis2009@yahoo.fr"]
