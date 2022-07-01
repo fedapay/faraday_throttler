@@ -1,9 +1,5 @@
-require 'faraday_throttler/retryable'
-
 module FaradayThrottler
   class Cache
-    include Retryable
-
     def initialize(store = {})
       @mutex = Mutex.new
       @store = store
@@ -13,10 +9,8 @@ module FaradayThrottler
       mutex.synchronize { store[key] = resp }
     end
 
-    def get(key, wait = 0)
-      with_retry(wait) {
-        mutex.synchronize { store[key] }
-      }
+    def get(key)
+      mutex.synchronize { store[key] }
     end
 
     private
