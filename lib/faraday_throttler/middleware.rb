@@ -97,9 +97,7 @@ module FaradayThrottler
     def fetch_and_check_rate_limit(request_env, cache_key, start)
       app.call(request_env).on_complete do |response_env|
         if rate_limit_response_checker.call(response_env)
-          sleep wait
-          logger.debug logline(cache_key, "C.1.1. Rate limited on backend. Took #{Time.now - start}")
-          fetch_and_check_rate_limit(request_env, cache_key, start)
+          wait_and_replay_call(request_env, cache_key, start)
         else
           # Everything alright
           logger.debug logline(cache_key, "C.1.2. Everything alright, request finished. Took #{Time.now - start}")
@@ -107,6 +105,19 @@ module FaradayThrottler
           release_request_stick(cache_key)
         end
       end
+    rescue Faraday::ClientError => e
+      if rate_limit_response_checker.call(e.response)
+        wait_and_replay_call(request_env, cache_key, start)
+      else
+        raise e
+      end
+    end
+
+    def wait_and_replay_call(request_env, cache_key, start)
+      # Replay request call
+      sleep wait
+      logger.debug logline(cache_key, "C.1.1. Rate limited on backend. Took #{Time.now - start}")
+      fetch_and_check_rate_limit(request_env, cache_key, start)
     end
 
     def validate_dep!(dep, dep_name, *methods)
@@ -131,7 +142,7 @@ module FaradayThrottler
     end
 
     def request_stick?(cache_key)
-      counter = cache.get(cache_key, 0).to_i
+      counter = cache.get(cache_key).to_i
       p "#{counter}, #{cache_key}"
       if counter < rate
         cache.set(cache_key, counter + 1)
@@ -142,7 +153,7 @@ module FaradayThrottler
     end
 
     def release_request_stick(cache_key)
-      counter = cache.get(cache_key, 0).to_i
+      counter = cache.get(cache_key).to_i
       cache.set(cache_key, counter - 1) if counter > 0
     end
 
