@@ -5,7 +5,7 @@ module FaradayThrottler
       @store = store
     end
 
-    def set(key, resp)
+    def set(key, resp, _ = {})
       mutex.synchronize { store[key] = resp }
     end
 

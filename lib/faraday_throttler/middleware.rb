@@ -143,7 +143,6 @@ module FaradayThrottler
 
     def request_stick?(cache_key)
       counter = cache.get(cache_key).to_i
-      p "#{counter}, #{cache_key}"
       if counter < rate
         cache.set(cache_key, counter + 1)
         true
