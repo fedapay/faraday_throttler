@@ -6,7 +6,7 @@ require 'faraday_throttler/redis_cache'
 
 
 redis = Redis.new
-cache = FaradayThrottler::RedisCache.new(redis: redis, ttl: 60)
+cache = FaradayThrottler::RedisCache.new(redis: redis, default_ttl: 60)
 
 conn = Faraday.new(:url => 'http://localhost:9800') do |faraday|
   # faraday.response :logger                  # log requests to STDOUT
