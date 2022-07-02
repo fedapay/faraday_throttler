@@ -105,10 +105,11 @@ module FaradayThrottler
           release_request_stick(cache_key)
         end
       end
-    rescue Faraday::ClientError => e
-      if rate_limit_response_checker.call(e.response)
+    rescue Faraday::Error => e
+      if e.is_a?(Faraday::ClientError) && rate_limit_response_checker.call(e.response)
         wait_and_replay_call(request_env, cache_key, start)
       else
+        release_request_stick(cache_key)
         raise e
       end
     end
