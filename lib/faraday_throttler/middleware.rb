@@ -84,7 +84,7 @@ module FaradayThrottler
 
     private
     attr_reader :app, :cache, :cache_key_resolver, :rate, :wait, :timeout,
-                :rate_limit_response_checker, :logger
+                :rate_limit_response_checker, :logger, enabled
 
     def handle_request(request_env, cache_key, start)
       logger.debug logline(cache_key, "B.1.1. handle sync. Timeout: #{timeout}")
