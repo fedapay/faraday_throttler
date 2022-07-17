@@ -11,6 +11,9 @@ module FaradayThrottler
         # The base Faraday adapter.
         app,
 
+        # enable the throller
+        enabled: true,
+
         # Sticks cache.
         cache: Cache.new,
 
@@ -63,7 +66,7 @@ module FaradayThrottler
     end
 
     def call(request_env)
-      return app.call(request_env) if request_env[:method] != :get
+      return app.call(request_env) if skip?(request_env)
 
       start = Time.now
 
@@ -159,6 +162,10 @@ module FaradayThrottler
 
     def logline(cache_key, line)
       "[Throttler:#{cache_key}] #{line}"
+    end
+
+    def skip?(request_env)
+      !enabled || request_env[:method] != :get
     end
   end
 
